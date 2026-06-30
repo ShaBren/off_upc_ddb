@@ -1,5 +1,7 @@
 # Parquet data file — too large for git (~7.6 GB)
 food.parquet
+food.parquet.manifest.json
+*.manifest.json
 
 # Python
 __pycache__/

@@ -5,6 +5,7 @@ import sys
 
 import click
 
+from off_upc_ddb.fetch import download_db, status as fetch_status
 from off_upc_ddb.lookup import ProductLookup, conform_upc
 from off_upc_ddb.server import create_app
 
@@ -59,6 +60,41 @@ def query(db_path: str, upc: str):
         raise SystemExit(1)
 
     click.echo(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+@main.command()
+@db_path_option
+@click.option(
+    "--force", "-f", is_flag=True, help="Re-download even if the file already exists."
+)
+def fetch(db_path: str, force: bool):
+    """Download the OpenFoodFacts database from Hugging Face.
+
+    Downloads food.parquet (~7.6 GB) to the path specified by --db-path.
+    Skips the download if the file already exists and the remote dataset
+    revision matches the stored manifest, unless --force is given.
+
+    Uses huggingface_hub internally, which handles caching, resume, and
+    LFS integrity verification automatically.
+    """
+    try:
+        downloaded = download_db(db_path, force=force)
+    except OSError as exc:
+        click.echo(f"Error: {exc}", err=True)
+        raise SystemExit(2) from exc
+    except RuntimeError as exc:
+        click.echo(f"Error: {exc}", err=True)
+        raise SystemExit(2) from exc
+
+    if not downloaded:
+        # Already up-to-date — print status.
+        info = fetch_status(db_path)
+        if info.get("update_available"):
+            click.echo(
+                f"⚠  Update available!  Remote: {info['remote_revision'][:12]}…  "
+                f"Local: {info['manifest']['revision'][:12]}…"
+            )
+            click.echo("   Run with --force to re-download.")
 
 
 @main.command()
