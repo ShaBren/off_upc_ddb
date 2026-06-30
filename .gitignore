@@ -15,9 +15,6 @@ build/
 venv/
 env/
 
-# uv
-uv.lock
-
 # IDE / editor
 .vscode/
 .idea/

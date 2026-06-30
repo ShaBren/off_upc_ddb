@@ -19,13 +19,9 @@ uvx off_upc_ddb query 3017620422003
 # 3. Or start the HTTP server
 uvx off_upc_ddb serve
 ```
-
 ## Installation
-
 Requires Python ≥ 3.10 and [uv](https://docs.astral.sh/uv/).
-
 ### Run directly with uvx (no install)
-
 ```bash
 uvx --from git+https://github.com/ShaBren/off_upc_ddb off_upc_ddb fetch
 uvx --from git+https://github.com/ShaBren/off_upc_ddb off_upc_ddb query 3017620422003
@@ -40,6 +36,23 @@ cd off_upc_ddb
 uv sync
 uv run off_upc_ddb fetch
 ```
+### Docker
+```bash
+docker compose up -d
+```
+
+On first launch the database is downloaded to a persistent named volume
+(~7.6 GB, one-time cost).  The Hugging Face cache is also persisted, so
+subsequent restarts only make a lightweight API call to check for updates.
+When the upstream dataset is refreshed (nightly) the new version is
+downloaded automatically, using cached chunks to minimise bandwidth.
+
+| Volume | Purpose |
+|--------|---------|
+| `upc_data` | Persists `food.parquet` + manifest across restarts |
+| `hf_cache` | Hugging Face cache — enables resume & delta downloads |
+
+Override the default port with `PORT=8080 docker compose up -d`.
 
 ## Commands
 
@@ -48,26 +61,20 @@ uv run off_upc_ddb fetch
 ```bash
 uvx off_upc_ddb fetch [--force] [-d ./food.parquet]
 ```
-
 Downloads `food.parquet` from the
 [`openfoodfacts/product-database`](https://huggingface.co/datasets/openfoodfacts/product-database)
 dataset on Hugging Face (~7.6 GB).
-
 | Behaviour | Trigger |
 |-----------|---------|
 | **No-op** | Local file exists and remote revision matches stored manifest |
 | **Register** | Local file exists but no manifest — registers it without re-downloading |
 | **Download** | File missing, revision changed, or `--force` given |
-
 `huggingface_hub` handles caching, resume, LFS integrity verification, and
 progress display internally.  A `.manifest.json` sidecar tracks the dataset
 revision for future update checks.
-
 The database path can also be set via the `OFF_UPC_DDB_PATH` environment
 variable.
-
 ### `query` — look up a single UPC
-
 ```bash
 uvx off_upc_ddb query <UPC> [-d ./food.parquet]
 ```
@@ -97,9 +104,7 @@ Exit codes: **0** = found, **1** = not found, **2** = error.
   …
 }
 ```
-
 ### `serve` — start the HTTP API
-
 ```bash
 uvx off_upc_ddb serve [--host 0.0.0.0] [--port 5000] [-d ./food.parquet]
 ```
