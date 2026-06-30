@@ -37,6 +37,11 @@ uv sync
 uv run off_upc_ddb fetch
 ```
 ### Docker
+
+Pre-built images are published to
+[GHCR](https://github.com/ShaBren/off_upc_ddb/pkgs/container/off_upc_ddb)
+on every version tag.
+
 ```bash
 docker compose up -d
 ```
