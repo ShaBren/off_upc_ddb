@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Verify package imports
+        run: |
+          uv run python -c "from off_upc_ddb.lookup import ProductLookup, conform_upc"
+          uv run python -c "from off_upc_ddb.server import create_app"
+          uv run python -c "from off_upc_ddb.fetch import download_db, status"
+
+      - name: Verify CLI entry point
+        run: |
+          uv run off_upc_ddb --help
+          uv run off_upc_ddb query --help
+          uv run off_upc_ddb serve --help
+          uv run off_upc_ddb fetch --help
+
+      - name: Verify UPC conformance
+        run: |
+          uv run python -c "
+          from off_upc_ddb.lookup import conform_upc
+          assert conform_upc('123456789012') == '0123456789012'
+          assert conform_upc(' 1234567890 ') == '0001234567890'
+          assert conform_upc('2001234567890') == '2001234567890'
+          assert conform_upc('abc') == 'abc'
+          print('UPC conformance OK')
+          "
+
+      - name: Build Docker image
+        run: docker build -t off_upc_ddb:ci .
