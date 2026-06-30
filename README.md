@@ -27,15 +27,15 @@ Requires Python ≥ 3.10 and [uv](https://docs.astral.sh/uv/).
 ### Run directly with uvx (no install)
 
 ```bash
-uvx --from git+https://github.com/... off_upc_ddb fetch
-uvx --from git+https://github.com/... off_upc_ddb query 3017620422003
-uvx --from git+https://github.com/... off_upc_ddb serve
+uvx --from git+https://github.com/ShaBren/off_upc_ddb off_upc_ddb fetch
+uvx --from git+https://github.com/ShaBren/off_upc_ddb off_upc_ddb query 3017620422003
+uvx --from git+https://github.com/ShaBren/off_upc_ddb off_upc_ddb serve
 ```
 
 ### Install from source
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/ShaBren/off_upc_ddb.git
 cd off_upc_ddb
 uv sync
 uv run off_upc_ddb fetch
