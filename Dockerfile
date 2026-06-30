@@ -17,6 +17,9 @@ RUN uv sync --frozen --no-editable
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
 
+# Make venv-installed commands available on PATH
+ENV PATH="/app/.venv/bin:$PATH"
+
 # Hugging Face cache location (mounted as a volume for persistence)
 ENV HF_HOME=/hf_cache
 # Default DB path (volume-mounted directory)
