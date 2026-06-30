@@ -1,0 +1,20 @@
+[project]
+name = "off_upc_ddb"
+version = "0.1.0"
+description = "UPC product lookup from the OpenFoodFacts database (Parquet)"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.1",
+    "duckdb>=1.2",
+    "click>=8.1",
+]
+
+[project.scripts]
+off_upc_ddb = "off_upc_ddb.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/off_upc_ddb"]
